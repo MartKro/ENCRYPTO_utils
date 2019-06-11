@@ -9,23 +9,38 @@ option(ENCRYPTO_UTILS_BUILD_TESTS "Build tests" Off)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
-find_package(MIRACL QUIET)
-if(MIRACL_FOUND)
-    message(STATUS "Found MIRACL")
-elseif(NOT MIRACL_FOUND AND NOT TARGET MIRACL::miracl)
-    message("MIRACL was not found: add MIRACL subdirectory")
-    if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/MIRACL/CMakeLists.txt")
-        find_package(Git REQUIRED)
-        message("initialize Git submodule: extern/MIRACL")
-        execute_process(COMMAND git submodule update --init extern/MIRACL
-                        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
-    endif()
-    add_subdirectory(extern/MIRACL)
-endif()
 find_package(GMP REQUIRED)
 find_package(GMPXX REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Boost 1.66.0 REQUIRED COMPONENTS system thread)
+
+set(ecclvl 251) #set this for the ecc security level
+
+#relic library configuration
+set(ALIGN 16)
+set(DARCH X64)
+#set(ARITH curve2251-sse)
+set(CHECK off)
+set(FB_POLYN ${ecclvl})
+set(FB_METHD "INTEG;INTEG;QUICK;QUICK;QUICK;QUICK;LOWER;SLIDE;QUICK")
+set(FB_PRECO on)
+set(FB_SQRTF off)
+set(EB_METHD "PROJC;LODAH;COMBS;INTER")
+set(EC_METHD "CHAR2")
+set(COMP "-O3 -funroll-loops -fomit-frame-pointer -march=core2 -mssse3")
+set(TIMER CYCLE)
+set(WITH "MD;DV;BN;FB;EB;EC")
+set(WSIZE 64)
+set(TESTS 0)
+set(BENCH 0)
+set(SHLIB off)
+
+#TODO fix this to a proper include of the headers, it just works, but it looks dirty
+include_directories(${CMAKE_SOURCE_DIR}/extern/relic/include ${CMAKE_SOURCE_DIR}/extern/relic/include/low ${CMAKE_BINARY_DIR}/extern/relic/include)
+add_subdirectory(extern/relic)
+
+#TODO fix this to a proper preprocessor definition, it just works, but it looks dirty
+add_compile_definitions(ECCLVL=${ecclvl})
 
 add_subdirectory(src)
 

@@ -34,7 +34,7 @@ target_include_directories(encrypto_utils
 
 
 target_link_libraries(encrypto_utils
-    PRIVATE MIRACL::miracl
+    PRIVATE ${RELIC_S}
     PRIVATE Boost::system Boost::thread
     PUBLIC GMP::GMP GMP::GMPXX
     PUBLIC OpenSSL::Crypto
